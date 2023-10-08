@@ -1,0 +1,70 @@
+﻿@page "/Cabinet"
+@using DTO;
+@using SHIIIIIIIIT.Tools;
+@inject HttpClient _httpClient
+@inject IAuthorizationManager _authManager
+
+<div class="card">
+    <div class="card-header">
+        @ClientData.Login
+    </div>
+
+    <div class="card-body">
+        <EditForm Model="@clientData" OnValidSubmit="Update"> 
+            <DataAnnotationsValidator />
+
+            <div class="form-label d-flex flex-column">
+                <p>Почта</p>
+                <p>@clientData.Email</p>
+            </div>
+
+            <div class="form-label d-flex flex-column">
+                <label for="login">Логин</label>
+                <InputText id="login" @bind-Value="clientData.Login"/>
+                <ValidationMessage For="() => clientData.Login" />
+            </div>
+            
+            <div class="form-label d-flex flex-column">
+                <label for="name">Имя</label>
+                <InputText id="name" @bind-Value="clientData.Name"/>
+                <ValidationMessage For="() => clientData.Name" />
+            </div>
+            
+            <div class="form-label d-flex flex-column">
+                <label for="lastName">Фамилия</label>
+                <InputText id="lastName" @bind-Value="clientData.LastName" />
+                <ValidationMessage For="() => clientData.LastName" />
+            </div>
+            
+            <div class="form-label d-flex flex-column">
+                <label for="patronymic">Отчество</label>
+                <InputText id="patronymic" @bind-Value="clientData.Patronymic" />
+                <ValidationMessage For="() => clientData.Patronymic" />
+            </div>
+
+            <!-- TODO: переспросить -->
+            <button type="submit" class="btn btn-danger">Обновить</button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private ClientDTO clientData = new();
+
+    protected async override Task OnInitializedAsync ()
+    {
+        var response = await _httpClient.GetAsync($"/Clients/{ClientData.ID}");
+
+        if (!response.IsSuccessStatusCode) {
+            await _authManager.LogoutAsync();
+            return;
+        }
+
+        clientData = (await response.Content.ReadFromJsonAsync<ClientDTO>())!;
+    }
+
+    private async Task Update ()
+    {
+        await _httpClient.PutAsJsonAsync($"/Clients/{ClientData.ID}", clientData);
+    }
+}

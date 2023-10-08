@@ -3,9 +3,12 @@ using System.Security.Claims;
 
 namespace SHIIIIIIIIT.Tools;
 
+/// <summary>
+/// TODO: Подумать, можно ли переделать, а если можно - то как?
+/// </summary>
 public class CustomAuthStateProvider : AuthenticationStateProvider
 {
-    ClaimsIdentity _currentUser = Anon;
+    private ClaimsIdentity _currentUser = Anon;
 
     public override Task<AuthenticationState> GetAuthenticationStateAsync()
     {

@@ -13,7 +13,7 @@
     <main>
         <div class="top-row px-5">
             <AuthorizeView>
-                <a class="m-2" href="Cabinet">@ClientData.Login</a>
+                <NavLink class="m-2" href="Cabinet">@ClientData.Login</NavLink>
 
                 <button class="btn btn-danger" @onclick="async () => await Logout()">Выйти</button>
             </AuthorizeView>

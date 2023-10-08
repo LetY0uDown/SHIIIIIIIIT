@@ -17,6 +17,11 @@ internal static class ServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>
+    /// Добавляет необходимые для работы сервисы
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
     internal static IServiceCollection AddServices (this IServiceCollection services)
     {
         services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
@@ -26,7 +31,7 @@ internal static class ServiceCollectionExtensions
             BaseAddress = new("http://localhost:5174")
         });
 
-        services.AddTransient<IAuthorizationManager, AuthorizationManager>();
+        services.AddScoped<IAuthorizationManager, AuthorizationManager>();
 
         return services;
     }

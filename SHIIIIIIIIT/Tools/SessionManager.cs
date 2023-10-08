@@ -2,9 +2,13 @@
 
 namespace SHIIIIIIIIT.Tools;
 
+/// <summary>
+/// TODO: Подумать, можно ли переделать, а если можно - то как?
+/// возможно я что-то сломал
+/// </summary>
 public class SessionManager
 {
-    private readonly ProtectedSessionStorage _storage;
+    private readonly ProtectedBrowserStorage _storage;
 
     private static readonly Dictionary<string, Guid> _userSesssions = new();
 
