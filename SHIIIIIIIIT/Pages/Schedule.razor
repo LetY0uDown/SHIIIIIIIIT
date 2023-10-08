@@ -1,5 +1,7 @@
 ﻿@page "/Schedule"
+
 @using DTO;
+@using Microsoft.AspNetCore.Authentication.Cookies;
 @using SHIIIIIIIIT.Tools;
 
 @inject HttpClient _httpClient;
@@ -7,7 +9,7 @@
 <h2>Расписание</h2>
 
 @if (schedules == null) {
-    <p><em>Loading...</em></p>
+    <p>не найдено</p>
 } else {
     <table class="table table-striped">
         <thead>
