@@ -1,0 +1,34 @@
+﻿@using SHIIIIIIIIT.Tools;
+@inherits LayoutComponentBase
+@inject IAuthorizationManager _authManager;
+@inject NavigationManager _navigation;
+
+<PageTitle>SHIIIIIIIIT</PageTitle>
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-5">
+            <AuthorizeView>
+                <a class="m-2" href="Cabinet">@ClientData.Login</a>
+
+                <button class="btn btn-danger" @onclick="async () => await Logout()">Выйти</button>
+            </AuthorizeView>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    private async Task Logout ()
+    {
+        await _authManager.LogoutAsync();
+        _navigation.NavigateTo("/");
+    }
+}

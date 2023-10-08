@@ -1,0 +1,15 @@
+﻿@page "/"
+@using SHIIIIIIIIT.Tools;
+@inject IAuthorizationManager _authManager;
+@inject NavigationManager _navigation;
+
+@code {
+    protected override void OnAfterRender (bool firstRender)
+    {
+        var navigateTo = _authManager.IsAuthorized
+                            ? "Schedule"
+                            : "Authorization";
+                            
+        _navigation.NavigateTo(navigateTo);
+    }
+}

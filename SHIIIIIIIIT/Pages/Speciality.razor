@@ -1,0 +1,73 @@
+﻿@page "/Speciality/{specialityID}"
+@using DTO;
+@using System.Text;
+@using System.Net.Mime;
+@using SHIIIIIIIIT.Tools;
+@inject HttpClient _httpClient
+@inject IJSRuntime JsRuntime
+@inject NavigationManager _navigation
+
+@if (schedules == null) {
+    <p><em>Loading...</em></p>
+} else {
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th class="th-lg">Дата</th>
+                <th>Статус</th>
+                <th class="th-lg">Доктор</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var schedule in schedules) {
+                <tr>
+                    <td>@schedule.Date.ToString("yyyy.MM.dd HH:mm")</td>
+                    <td>@schedule.Status</td>
+                    <td>@schedule.Doctor.FullName</td>
+                    <td></td>
+                    <td>
+                        <button type="submit" class="btn btn-primary" @onclick="async () => await Sign(schedule)">
+                            Записаться на приём
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public string? specialityID { get; set; } = null!;
+
+    private List<ScheduleDTO>? schedules = null!;
+
+    protected override async Task OnInitializedAsync ()
+    {
+        var uri = $"/Schedule/free/{specialityID}?date={GetDate()}";
+        var response = await _httpClient.GetAsync(uri);
+
+        schedules = await response.Content.ReadFromJsonAsync<List<ScheduleDTO>>();
+    }
+
+    private async Task Sign (ScheduleDTO scheduleDTO)
+    {
+        var msg = await _httpClient.PostAsJsonAsync($"/Schedule/{ClientData.ID}", scheduleDTO);
+
+        if (!msg.IsSuccessStatusCode) {
+            await JsRuntime.InvokeVoidAsync("alert", await msg.Content.ReadAsStringAsync());
+            return;
+        }
+
+        _navigation.NavigateTo("/Schedule");
+    }
+
+    private string GetDate ()
+    {
+        var date = DateTime.Now;
+        return $"{date.Date.ToString("yyyy-MM-dd")}T{date.ToLongTimeString()}";
+    }
+}

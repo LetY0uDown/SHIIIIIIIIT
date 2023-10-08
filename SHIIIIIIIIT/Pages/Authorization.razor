@@ -1,0 +1,107 @@
+﻿@page "/Authorization"
+
+@using DTO.Auth
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+@using SHIIIIIIIIT.Tools
+
+@inject HttpClient _httpClient
+@inject IAuthorizationManager _authManager
+@inject NavigationManager _navigation
+
+<PageTitle>Вход</PageTitle>
+
+<div class="d-flex">
+    <div class="card d-block mx-auto" style="width: 25rem;">
+        <div class="card-header text-center fw-bold fs-2">
+            @header
+        </div>
+
+        <div class="card-body">
+            <EditForm Model="@LoginData" OnValidSubmit="Authorize">
+                <DataAnnotationsValidator />
+
+                <div class="form-label d-flex flex-column">
+                    <label for="login">Логин</label>
+                    <InputText id="login" @bind-Value="LoginData.Login" />
+                    <ValidationMessage For="() => LoginData.Login" />
+                </div>
+
+                <div class="form-label d-flex flex-column" style="margin-top: 2rem;">
+                    <label for="email">E-Mail</label>
+                    <InputText id="email" @bind-Value="LoginData.EMail" />
+                    <ValidationMessage For="() => LoginData.EMail" />
+                </div>
+
+                <div class="form-label d-flex flex-column" style="margin-top: 2rem;">
+                    <label for="pass">Пароль</label>
+                    <InputText id="pass" @bind-Value="LoginData.Password" />
+                    <ValidationMessage For="() => LoginData.Password" />
+                </div>
+
+                <p style="margin-top: 1rem;" class="text-danger">@errorMessage</p>
+
+                <div class=" d-flex flex-column" style="margin-top: 2rem;">
+                    <button class="btn btn-success" type="submit">Войти</button>
+
+                    <NavLink class="align-self-center" style="margin-top: 0.75rem;"
+                    @onclick="ChangeAuthForm">@changeStateString</NavLink>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool isRegistrating = false;
+
+    private string changeStateString = "Ещё нет аккаунта?";
+    private string header => isRegistrating ? "Регистрация" : "Вход";
+
+    private LoginData LoginData = new();
+
+    private string errorMessage = string.Empty;
+
+    private async Task Authorize ()
+    {
+        errorMessage = string.Empty;
+
+        HttpResponseMessage response;
+        if (isRegistrating) {
+            response = await _httpClient.PostAsJsonAsync("/Auth/Register", LoginData);
+        } else {
+            response = await _httpClient.PostAsJsonAsync("/Auth/Login", LoginData);
+        }
+
+        if (!response.IsSuccessStatusCode) {
+            errorMessage = await response.Content.ReadAsStringAsync();
+            return;
+        }
+
+        var authData = await response.Content.ReadFromJsonAsync<AuthorizationData>();
+        
+        _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + authData!.JWTToken);
+
+        ClientData.ID = authData!.ID;
+        ClientData.Login = LoginData.Login;
+
+        StateHasChanged();
+
+        await _authManager.AuthorizeAsync(authData.ID);
+
+        _navigation.NavigateTo("/");
+    }
+
+    private void ChangeAuthForm ()
+    {
+        isRegistrating = !isRegistrating;
+
+        if (isRegistrating) {
+            changeStateString = "Уже зарегистрированы?";
+        } else {
+            changeStateString = "Ещё нет аккаунта?";
+        }
+
+        StateHasChanged();
+    }
+}

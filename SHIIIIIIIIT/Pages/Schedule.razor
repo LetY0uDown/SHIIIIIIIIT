@@ -1,0 +1,55 @@
+﻿@page "/Schedule"
+@using DTO;
+@using SHIIIIIIIIT.Tools;
+
+@inject HttpClient _httpClient;
+
+<h2>Расписание</h2>
+
+@if (schedules == null) {
+    <p><em>Loading...</em></p>
+} else {
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th class="th-lg">Дата</th>
+                <th></th>
+                <th>Статус</th>
+                <th></th>
+                <th class="th-lg">Доктор</th>
+                <th></th>
+                <th>Специальность</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var schedule in schedules) {
+                <tr>
+                    <td>@schedule.Date.ToString("yyyy.MM.dd HH:mm")</td>
+                    <td></td>
+                    <td>@schedule.Status</td>
+                    <td></td>
+                    <td>@schedule.Doctor.FullName</td>
+                    <td></td>
+                    <td>@schedule.Doctor.SpecialityTitle</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<ScheduleDTO>? schedules = null!;
+
+    protected override async Task OnInitializedAsync ()
+    {
+        var response = await _httpClient.GetAsync($"/Schedule/c/{ClientData.ID}");
+
+        if (!response.IsSuccessStatusCode) {
+            schedules = null;
+            return;
+        }
+
+        schedules = await response.Content.ReadFromJsonAsync<List<ScheduleDTO>>();
+    }
+}

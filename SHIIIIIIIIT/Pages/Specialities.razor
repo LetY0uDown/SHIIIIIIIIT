@@ -1,0 +1,40 @@
+﻿@page "/Specialities"
+@using DTO;
+
+@inject HttpClient _httpClient;
+
+<h3>Специальности</h3>
+
+@if (specialities == null) {
+    <p><em>Loading...</em></p>
+} else {
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Название</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var speciality in specialities) {
+                <tr>
+                    <td>@speciality.Title</td>
+
+                    <td>
+                        <NavLink href="@($"Speciality/{speciality.ID}")" class="btn btn-success">Записаться</NavLink>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<SpecialityDTO>? specialities = null!;
+    private DoctorDTO? selectedDoctor = null!;
+
+    protected override async Task OnInitializedAsync ()
+    {
+        specialities = await _httpClient.GetFromJsonAsync<List<SpecialityDTO>>("/Speciality");
+    }
+}
